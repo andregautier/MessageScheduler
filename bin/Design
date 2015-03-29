@@ -1,0 +1,53 @@
+
+* Message producer and consumer (scheduler) interface
+
+  Decided to include the ability to easily specify alternative message prioritization
+  right at the start, adding that sort of facility later down the line often means a rewrite.
+
+  So, to support alternative prioritization, I decided to use a blocking priority queue as the exchange
+  mechanism between message producer and scheduler, the order is defined by a simple comparator,
+  the test project has 3 comparators based on: message text, groupId and priority.
+  
+  The priority comparator relies on the message queue setting the priority on the fly,
+  before the message is added to the queue, that makes the comparator very simple,
+  I created a sub-classed version of offer() and take() for that purpose.
+  
+  With that change, the interface producer-scheduler is simple, the producer simply
+  adds messages to the queue in the right order using offer() and the scheduler simply
+  uses take(). The use of a blocking queue ensures synchronization between producer
+  and consumer.
+  
+  The MessageQueue class has Junit test cases that exercise all 3 comparators and also,
+  exercises offer() and take().
+
+  
+* Scheduler - Gateway interface
+
+  Decided to use a thread pool for the scheduler, it creates as many fixed threads
+  as the specified number of resources available.
+  Each thread runs 'gateway' task that sends a message to the Gateway and waits
+  for its completion.
+  The scheduler has a sync mode for test purpose, in that mode, it waits for
+  the result of the GatewayTask and collects all results into a list that can
+  be retrieved by the unit test.
+  The test project has a unit test that exercises the MessageScheduler end to end.
+  It also has a test that shows how increasing the number of resources increases
+  the message throughput.
+  
+  
+ * Javadoc
+ 
+   Production quality code would obviously involve Javadoc, I did not add this to the exercise,
+   please get back to me and I'll add it.
+   
+   
+   
+  
+  
+  
+  
+  
+  
+  
+  
+  
